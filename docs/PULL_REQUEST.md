@@ -14,7 +14,7 @@ Ready? Great! Please provide the following details:
 
 ## Description
 
-Please decribe the bug or feature, and:
+Please decribe the bug or feature, along with:
 
 - [ ] Expected behavior and actual behavior.
 - [ ] Steps to reproduce the problem.
