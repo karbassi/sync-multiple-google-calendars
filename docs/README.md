@@ -23,6 +23,6 @@ This is useful for a collective Busy/Free Calendar or Google Home integration.
 MIT © [Ali Karbassi](http://karbassi.com)
 
 [Google Apps Scripts]: https://script.google.com/intro
-[SyncCalendarIntoOne.gs]: ../SyncCalendarsIntoOne.gs
+[SyncCalendarsIntoOne.gs]: ../SyncCalendarsIntoOne.gs
 [trigger-icon]: trigger.png
 [Quotas for Google Services]: https://developers.google.com/apps-script/guides/services/quotas
