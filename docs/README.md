@@ -1,3 +1,5 @@
+<p align="center"><img src="logo.png"/></p>
+
 # Sync Multiple Google Calendars into One
 
 When you want to sync multiple Google Calendars into one. Currently Google Calendar doesn't have this option and IFTT/Zapier don't allow an easy way to do this.
@@ -20,9 +22,10 @@ This is useful for a collective Busy/Free Calendar or Google Home integration.
 
 ## License
 
-MIT © [Ali Karbassi](http://karbassi.com)
+MIT © [Ali Karbassi]
 
+[Ali Karbassi]: http://karbassi.com
+[trigger-icon]: trigger.png
 [Google Apps Scripts]: https://script.google.com/intro
 [SyncCalendarsIntoOne.gs]: ../SyncCalendarsIntoOne.gs
-[trigger-icon]: trigger.png
 [Quotas for Google Services]: https://developers.google.com/apps-script/guides/services/quotas
