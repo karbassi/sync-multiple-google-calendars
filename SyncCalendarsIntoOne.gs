@@ -94,7 +94,7 @@ function createEvents(sharedCalendar, startTime, endTime) {
 
 function SyncCalendarsIntoOne() {
 
-    Logger.clear();
+    // Logger.clear();
 
     var sharedCalendar = CalendarApp.getCalendarById(CALENDAR_TO_MERGE_INTO);
 
