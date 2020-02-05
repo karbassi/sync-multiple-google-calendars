@@ -25,7 +25,7 @@ var changes = 0;
 function changesMade() {
     changes++;
     if (changes > THROTTLE_THRESHOLD) {
-        Logger.log("Sleeping for %s milliseconds", THROTTLE_SLEEP_TIME);
+        // Logger.log("Sleeping for %s milliseconds", THROTTLE_SLEEP_TIME);
         Utilities.sleep(THROTTLE_SLEEP_TIME);
         changes = 0;
     }
@@ -40,7 +40,7 @@ function deleteEvents(sharedCalendar, startTime, endTime) {
         var event = events[i];
 
         if (event.getTag("isCloned")) {
-            Logger.log("Deleting event '%s' in '%s'.", event.getTitle(), sharedCalendar.getName());
+            // Logger.log("Deleting event '%s' in '%s'.", event.getTitle(), sharedCalendar.getName());
             event.deleteEvent();
             changesMade();
         }
@@ -81,7 +81,7 @@ function createEvents(sharedCalendar, startTime, endTime) {
             createdEvent.setTag("isCloned", true);
             changesMade();
 
-            Logger.log("Created event '%s' from '%s'.", createdEvent.getTitle(), calendarToCopy.getName());
+            // Logger.log("Created event '%s' from '%s'.", createdEvent.getTitle(), calendarToCopy.getName());
         }
     }
 }
