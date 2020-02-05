@@ -65,6 +65,7 @@ function createEvents(sharedCalendar, startTime, endTime) {
                         description: event.getDescription()
                     }
                 );
+                changesMade();
             } else {
                 createdEvent = sharedCalendar.createEvent(
                     calenderName + " " + event.getTitle(),
@@ -74,9 +75,8 @@ function createEvents(sharedCalendar, startTime, endTime) {
                         description: event.getDescription()
                     }
                 );
+                changesMade();
             }
-
-            changesMade();
 
             createdEvent.setTag("isCloned", true);
             changesMade();
