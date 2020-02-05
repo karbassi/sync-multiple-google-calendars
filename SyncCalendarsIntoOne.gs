@@ -50,6 +50,12 @@ function deleteEvents(sharedCalendar, startTime, endTime) {
 function createEvents(sharedCalendar, startTime, endTime) {
     for (var calenderName in CALENDARS_TO_MERGE) {
         var calendarToCopy = CalendarApp.getCalendarById(CALENDARS_TO_MERGE[calenderName]);
+
+        if (!calendarToCopy) {
+            Logger.log("Calendar not found: '%s'.", CALENDARS_TO_MERGE[calenderName]);
+            continue;
+        }
+
         var events = calendarToCopy.getEvents(startTime, endTime);
 
         for (var i = 0; i < events.length; i++) {
