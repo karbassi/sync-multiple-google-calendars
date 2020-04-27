@@ -10,7 +10,7 @@ const CALENDARS_TO_MERGE = {
 const CALENDAR_TO_MERGE_INTO = "shared-calendar-id@gmail.com";
 
 // Number of days in the future to run.
-const DAYS_TO_SYNC = 14;
+const DAYS_TO_SYNC = 30;
 
 // Updating too many events in a short time period triggers an error.
 // These values were tested for updating 40 events.
@@ -22,106 +22,76 @@ const THROTTLE_SLEEP_TIME = 3000;
 // ----------------------------------------------------------------------------
 // DO NOT TOUCH FROM HERE ON
 // ----------------------------------------------------------------------------
-var changes = 0;
-
-function changesMade() {
-  changes++;
-  if (changes > THROTTLE_THRESHOLD) {
-    // Logger.log("Sleeping for %s milliseconds", THROTTLE_SLEEP_TIME);
-    Utilities.sleep(THROTTLE_SLEEP_TIME);
-    changes = 0;
-  }
-}
 
 // Delete any old events that have been already cloned over.
 // This is basically a sync w/o finding and updating. Just deleted and recreate.
-function deleteEvents(sharedCalendar, startTime, endTime) {
-  var events = sharedCalendar.getEvents(startTime, endTime);
+function deleteEvents(startTime, endTime) {
+  const sharedCalendar = CalendarApp.getCalendarById(CALENDAR_TO_MERGE_INTO);
+  const events = sharedCalendar.getEvents(startTime, endTime);
 
-  for (var i = 0; i < events.length; i++) {
-    var event = events[i];
-
-    if (event.getTag("isCloned")) {
-      // Logger.log(
-      //   "Deleting event '%s' in '%s'.",
-      //   event.getTitle(),
-      //   sharedCalendar.getName()
-      // );
-      event.deleteEvent();
-      changesMade();
-    }
-  }
+  events.forEach((event) => {
+    event.deleteEvent();
+  });
 }
 
-function createEvents(sharedCalendar, startTime, endTime) {
-  for (var calenderName in CALENDARS_TO_MERGE) {
-    var calendarToCopy = CalendarApp.getCalendarById(
-      CALENDARS_TO_MERGE[calenderName]
-    );
+function createEvents(startTime, endTime) {
+  for (let calenderName in CALENDARS_TO_MERGE) {
+    const calendarId = CALENDARS_TO_MERGE[calenderName];
+    const calendarToCopy = CalendarApp.getCalendarById(calendarId);
 
     if (!calendarToCopy) {
-      Logger.log("Calendar not found: '%s'.", CALENDARS_TO_MERGE[calenderName]);
+      Logger.log("Calendar not found: '%s'.", calendarId);
       continue;
     }
 
-    var events = calendarToCopy.getEvents(startTime, endTime);
+    // Find events
+    const events = Calendar.Events.list(calendarId, {
+      timeMin: startTime.toISOString(),
+      timeMax: endTime.toISOString(),
+      singleEvents: true,
+      orderBy: "startTime",
+    });
 
-    for (var i = 0; i < events.length; i++) {
-      var event = events[i];
+    // If nothing find, move to next calendar
+    if (!(events.items && events.items.length > 0)) {
+      continue;
+    }
 
-      if (event.getVisibility() == CalendarApp.Visibility.PRIVATE) {
-        continue;
+    events.items.forEach((event) => {
+      // Don't copy "free" events.
+      if (event.transparency && event.transparency === "transparent") {
+        return;
       }
 
-      var createdEvent;
+      const newEvent = {
+        summary: `${calenderName} ${event.summary}`,
+        location: event.location,
+        description: event.description,
+        start: event.start,
+        end: event.end,
+      };
 
-      if (event.isAllDayEvent()) {
-        createdEvent = sharedCalendar.createAllDayEvent(
-          calenderName + " " + event.getTitle(),
-          event.getStartTime(),
-          {
-            location: event.getLocation(),
-            description: event.getDescription(),
-          }
-        );
-        changesMade();
-      } else {
-        createdEvent = sharedCalendar.createEvent(
-          calenderName + " " + event.getTitle(),
-          event.getStartTime(),
-          event.getEndTime(),
-          {
-            location: event.getLocation(),
-            description: event.getDescription(),
-          }
-        );
-        changesMade();
-      }
-
-      createdEvent.setTag("isCloned", true);
-      changesMade();
+      Calendar.Events.insert(newEvent, CALENDAR_TO_MERGE_INTO);
 
       // Logger.log(
       //   "Created event '%s' from '%s'.",
       //   createdEvent.getTitle(),
       //   calendarToCopy.getName()
       // );
-    }
+    });
   }
 }
 
 function SyncCalendarsIntoOne() {
   // Logger.clear();
 
-  var sharedCalendar = CalendarApp.getCalendarById(CALENDAR_TO_MERGE_INTO);
-
   // Midnight today
-  var startTime = new Date();
+  const startTime = new Date();
   startTime.setHours(0, 0, 0, 0);
 
-  var endTime = new Date(startTime.valueOf());
+  const endTime = new Date(startTime.valueOf());
   endTime.setDate(endTime.getDate() + DAYS_TO_SYNC);
 
-  deleteEvents(sharedCalendar, startTime, endTime);
-  createEvents(sharedCalendar, startTime, endTime);
+  deleteEvents(startTime, endTime);
+  createEvents(startTime, endTime);
 }
