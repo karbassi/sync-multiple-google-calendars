@@ -2,22 +2,15 @@
 // "[X]" is what is placed in front of your calendar event in the shared calendar.
 // Use "" if you want none.
 const CALENDARS_TO_MERGE = {
-  "[Personal]": "calendar-id@gmail.com",
-  "[Work]": "calendar-id@gmail.com",
+  '[Personal]': 'calendar-id@gmail.com',
+  '[Work]': 'calendar-id@gmail.com',
 };
 
 // The ID of the shared calendar
-const CALENDAR_TO_MERGE_INTO = "shared-calendar-id@gmail.com";
+const CALENDAR_TO_MERGE_INTO = 'shared-calendar-id@gmail.com';
 
 // Number of days in the future to run.
 const DAYS_TO_SYNC = 30;
-
-// Updating too many events in a short time period triggers an error.
-// These values were tested for updating 40 events.
-// Modify these values if you're still seeing errors.
-// Sleep Time is in milliseconds.
-const THROTTLE_THRESHOLD = 10;
-const THROTTLE_SLEEP_TIME = 3000;
 
 // ----------------------------------------------------------------------------
 // DO NOT TOUCH FROM HERE ON
@@ -49,7 +42,7 @@ function createEvents(startTime, endTime) {
       timeMin: startTime.toISOString(),
       timeMax: endTime.toISOString(),
       singleEvents: true,
-      orderBy: "startTime",
+      orderBy: 'startTime',
     });
 
     // If nothing find, move to next calendar
@@ -59,7 +52,7 @@ function createEvents(startTime, endTime) {
 
     events.items.forEach((event) => {
       // Don't copy "free" events.
-      if (event.transparency && event.transparency === "transparent") {
+      if (event.transparency && event.transparency === 'transparent') {
         return;
       }
 
@@ -71,7 +64,9 @@ function createEvents(startTime, endTime) {
         end: event.end,
       };
 
-      Calendar.Events.insert(newEvent, CALENDAR_TO_MERGE_INTO);
+      cUseful.Utils.expBackoff(() => {
+        Calendar.Events.insert(newEvent, CALENDAR_TO_MERGE_INTO);
+      });
 
       // Logger.log(
       //   "Created event '%s' from '%s'.",
