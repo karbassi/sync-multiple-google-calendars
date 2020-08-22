@@ -22,18 +22,35 @@ function deleteEvents(startTime, endTime) {
   const sharedCalendar = CalendarApp.getCalendarById(CALENDAR_TO_MERGE_INTO);
   const events = sharedCalendar.getEvents(startTime, endTime);
 
-  events.forEach((event) => {
-    event.deleteEvent();
-  });
+  const requests = events.map((e, i) => ({
+    method: 'DELETE',
+    endpoint: `https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_TO_MERGE_INTO}/events/${e
+      .getId()
+      .replace('@google.com', '')}`,
+  }));
+
+  if (requests && requests.length) {
+    const result = BatchRequest.EDo({
+      useFetchAll: true,
+      batchPath: 'batch/calendar/v3',
+      requests: requests,
+    });
+    console.log(`${requests.length} deleted events.`);
+    //console.log(result);
+  } else {
+    console.log('No events to delete.');
+  }
 }
 
 function createEvents(startTime, endTime) {
+  let requests = [];
+
   for (let calenderName in CALENDARS_TO_MERGE) {
     const calendarId = CALENDARS_TO_MERGE[calenderName];
     const calendarToCopy = CalendarApp.getCalendarById(calendarId);
 
     if (!calendarToCopy) {
-      Logger.log("Calendar not found: '%s'.", calendarId);
+      console.log("Calendar not found: '%s'.", calendarId);
       continue;
     }
 
@@ -56,30 +73,33 @@ function createEvents(startTime, endTime) {
         return;
       }
 
-      const newEvent = {
-        summary: `${calenderName} ${event.summary}`,
-        location: event.location,
-        description: event.description,
-        start: event.start,
-        end: event.end,
-      };
-
-      cUseful.Utils.expBackoff(() => {
-        Calendar.Events.insert(newEvent, CALENDAR_TO_MERGE_INTO);
+      requests.push({
+        method: 'POST',
+        endpoint: `https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_TO_MERGE_INTO}/events`,
+        requestBody: {
+          summary: `${calenderName} ${event.summary}`,
+          location: event.location,
+          description: event.description,
+          start: event.start,
+          end: event.end,
+        },
       });
-
-      // Logger.log(
-      //   "Created event '%s' from '%s'.",
-      //   createdEvent.getTitle(),
-      //   calendarToCopy.getName()
-      // );
     });
+  }
+
+  if (requests && requests.length) {
+    const result = BatchRequest.EDo({
+      batchPath: 'batch/calendar/v3',
+      requests: requests,
+    });
+    console.log(`${requests.length} events created via BatchRequest`);
+    // console.log(result);
+  } else {
+    console.log('No events to create.');
   }
 }
 
 function SyncCalendarsIntoOne() {
-  // Logger.clear();
-
   // Midnight today
   const startTime = new Date();
   startTime.setHours(0, 0, 0, 0);
