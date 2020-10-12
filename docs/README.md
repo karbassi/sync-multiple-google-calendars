@@ -11,8 +11,9 @@ This is useful for a collective Busy/Free Calendar or Google Home integration.
 1. Make sure every calendar you want sync is shared with the account that holds the shared calendar.
 2. Log into the account that holds the shared calendar and go to the [Google Apps Scripts] website.
 3. Replace everything in `Code.gs` with the contents of [SyncCalendarsIntoOne.gs].
-4. Update `calendarsToMerge`, `calendarToMergeInto`, and `daysToSync`.
-5. Click on the ![trigger-icon] clock icon to add a trigger.
+4. Go to `View` -> `Show Manifest` and update its content with [appsscript.json](https://github.com/karbassi/sync-multiple-google-calendars/blob/master/appsscript.json).
+5. Update `calendarsToMerge`, `calendarToMergeInto`, and `daysToSync`.
+6. Click on the ![trigger-icon] clock icon to add a trigger.
  - Add a `Time-driven` event with it running `every hour`.
  - Click on _notifications_ and delete any notifications if you don't want to get notification failure emails.
 
