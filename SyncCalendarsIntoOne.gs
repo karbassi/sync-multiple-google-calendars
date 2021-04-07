@@ -22,28 +22,27 @@ function deleteEvents(startTime, endTime) {
   const sharedCalendar = CalendarApp.getCalendarById(CALENDAR_TO_MERGE_INTO);
   const events = sharedCalendar.getEvents(startTime, endTime);
 
-  const requests = events.map((e, i) => ({
+  const requestBody = events.map((e, i) => ({
     method: 'DELETE',
     endpoint: `https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_TO_MERGE_INTO}/events/${e
       .getId()
       .replace('@google.com', '')}`,
   }));
 
-  if (requests && requests.length) {
+  if (requestBody && requestBody.length) {
     const result = BatchRequest.EDo({
       useFetchAll: true,
       batchPath: 'batch/calendar/v3',
-      requests: requests,
+      requests: requestBody,
     });
-    console.log(`${requests.length} deleted events.`);
-    //console.log(result);
+    console.log(`${requestBody.length} deleted events.`);
   } else {
     console.log('No events to delete.');
   }
 }
 
 function createEvents(startTime, endTime) {
-  let requests = [];
+  let requestBody = [];
 
   for (let calenderName in CALENDARS_TO_MERGE) {
     const calendarId = CALENDARS_TO_MERGE[calenderName];
@@ -68,12 +67,13 @@ function createEvents(startTime, endTime) {
     }
 
     events.items.forEach((event) => {
+
       // Don't copy "free" events.
       if (event.transparency && event.transparency === 'transparent') {
         return;
       }
 
-      requests.push({
+      requestBody.push({
         method: 'POST',
         endpoint: `https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_TO_MERGE_INTO}/events`,
         requestBody: {
@@ -87,13 +87,12 @@ function createEvents(startTime, endTime) {
     });
   }
 
-  if (requests && requests.length) {
+  if (requestBody && requestBody.length) {
     const result = BatchRequest.EDo({
       batchPath: 'batch/calendar/v3',
-      requests: requests,
+      requests: requestBody,
     });
-    console.log(`${requests.length} events created via BatchRequest`);
-    // console.log(result);
+    console.log(`${requestBody.length} events created via BatchRequest`);
   } else {
     console.log('No events to create.');
   }
