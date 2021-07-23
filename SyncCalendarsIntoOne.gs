@@ -44,8 +44,8 @@ function deleteEvents(startTime, endTime) {
 function createEvents(startTime, endTime) {
   let requestBody = [];
 
-  for (let calenderName in CALENDARS_TO_MERGE) {
-    const calendarId = CALENDARS_TO_MERGE[calenderName];
+  for (let calendarName in CALENDARS_TO_MERGE) {
+    const calendarId = CALENDARS_TO_MERGE[calendarName];
     const calendarToCopy = CalendarApp.getCalendarById(calendarId);
 
     if (!calendarToCopy) {
@@ -77,7 +77,7 @@ function createEvents(startTime, endTime) {
         method: 'POST',
         endpoint: `https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_TO_MERGE_INTO}/events`,
         requestBody: {
-          summary: `${calenderName} ${event.summary}`,
+          summary: `${calendarName} ${event.summary}`,
           location: event.location,
           description: event.description,
           start: event.start,
