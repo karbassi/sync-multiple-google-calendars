@@ -2,6 +2,10 @@
   "timeZone": "America/Chicago",
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8",
+  "oauthScopes": [
+      "https://www.googleapis.com/auth/calendar",
+      "https://www.googleapis.com/auth/script.external_request"
+  ],
   "dependencies": {
     "enabledAdvancedServices": [
       {
