@@ -3,8 +3,8 @@
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8",
   "oauthScopes": [
-      "https://www.googleapis.com/auth/calendar",
-      "https://www.googleapis.com/auth/script.external_request"
+    "https://www.googleapis.com/auth/calendar",
+    "https://www.googleapis.com/auth/script.external_request"
   ],
   "dependencies": {
     "enabledAdvancedServices": [
@@ -12,13 +12,6 @@
         "userSymbol": "Calendar",
         "serviceId": "calendar",
         "version": "v3"
-      }
-    ],
-    "libraries": [
-      {
-        "userSymbol": "BatchRequest",
-        "libraryId": "1HLv6tWz0oXFOJHerBTP8HsNmhpRqssijJatC92bv9Ym6HSN69_UuzcDk",
-        "version": "6"
       }
     ]
   }

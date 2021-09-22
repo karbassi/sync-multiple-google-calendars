@@ -9,12 +9,35 @@ const CALENDARS_TO_MERGE = {
 // The ID of the shared calendar
 const CALENDAR_TO_MERGE_INTO = 'shared-calendar-id@gmail.com';
 
-// Number of days in the future to run.
-const DAYS_TO_SYNC = 30;
+// Number of days in the past and future to sync.
+const SYNC_DAYS_IN_PAST = 7;
+const SYNC_DAYS_IN_FUTURE = 30;
+
+
 
 // ----------------------------------------------------------------------------
 // DO NOT TOUCH FROM HERE ON
 // ----------------------------------------------------------------------------
+
+const ENDPOINT_BASE = 'https://www.googleapis.com/calendar/v3/calendars';
+
+function SyncCalendarsIntoOne() {
+  // Midnight today
+  const startTime = new Date();
+  startTime.setHours(0, 0, 0, 0);
+  startTime.setDate(startTime.getDate() - SYNC_DAYS_IN_PAST);
+
+  const endTime = new Date(startTime.valueOf());
+  endTime.setDate(endTime.getDate() + SYNC_DAYS_IN_FUTURE);
+
+  // Delete old events
+  const deleteStartTime = new Date();
+  deleteStartTime.setFullYear(2000, 01, 01);
+  deleteStartTime.setHours(0, 0, 0, 0);
+
+  deleteEvents(deleteStartTime, endTime);
+  createEvents(startTime, endTime);
+}
 
 // Delete any old events that have been already cloned over.
 // This is basically a sync w/o finding and updating. Just deleted and recreate.
@@ -24,13 +47,11 @@ function deleteEvents(startTime, endTime) {
 
   const requestBody = events.map((e, i) => ({
     method: 'DELETE',
-    endpoint: `https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_TO_MERGE_INTO}/events/${e
-      .getId()
-      .replace('@google.com', '')}`,
+    endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events/${e.getId().replace('@google.com', '')}`,
   }));
 
   if (requestBody && requestBody.length) {
-    const result = BatchRequest.EDo({
+    const result = new BatchRequest({
       useFetchAll: true,
       batchPath: 'batch/calendar/v3',
       requests: requestBody,
@@ -75,7 +96,7 @@ function createEvents(startTime, endTime) {
 
       requestBody.push({
         method: 'POST',
-        endpoint: `https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_TO_MERGE_INTO}/events`,
+        endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events`,
         requestBody: {
           summary: `${calendarName} ${event.summary}`,
           location: event.location,
@@ -88,24 +109,12 @@ function createEvents(startTime, endTime) {
   }
 
   if (requestBody && requestBody.length) {
-    const result = BatchRequest.EDo({
+    const result = new BatchRequest({
       batchPath: 'batch/calendar/v3',
       requests: requestBody,
     });
-    console.log(`${requestBody.length} events created via BatchRequest`);
+    console.log(`${requestBody.length} events created.`);
   } else {
     console.log('No events to create.');
   }
-}
-
-function SyncCalendarsIntoOne() {
-  // Midnight today
-  const startTime = new Date();
-  startTime.setHours(0, 0, 0, 0);
-
-  const endTime = new Date(startTime.valueOf());
-  endTime.setDate(endTime.getDate() + DAYS_TO_SYNC);
-
-  deleteEvents(startTime, endTime);
-  createEvents(startTime, endTime);
 }
