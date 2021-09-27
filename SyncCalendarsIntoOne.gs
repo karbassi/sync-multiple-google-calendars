@@ -56,7 +56,12 @@ function deleteEvents(startTime, endTime) {
       batchPath: 'batch/calendar/v3',
       requests: requestBody,
     });
-    console.log(`${requestBody.length} deleted events.`);
+
+    if (result.length !== requestBody.length) {
+      console.log(result)
+    }
+
+    console.log(`${result.length} deleted events.`);
   } else {
     console.log('No events to delete.');
   }
@@ -113,7 +118,12 @@ function createEvents(startTime, endTime) {
       batchPath: 'batch/calendar/v3',
       requests: requestBody,
     });
-    console.log(`${requestBody.length} events created.`);
+
+    if (result.length !== requestBody.length) {
+      console.log(result)
+    }
+
+    console.log(`${result.length} events created.`);
   } else {
     console.log('No events to create.');
   }

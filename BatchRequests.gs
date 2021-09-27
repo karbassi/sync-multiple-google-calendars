@@ -92,7 +92,7 @@ class BatchRequest {
 
     var contentId = 0;
     var data = `--${boundary}\r\n`;
-    requests.forEach(() => (req) => {
+    requests.forEach((req) => {
       data +=
         `Content-Type: application/http\r\n` +
         `Content-ID: ${++contentId}\r\n\r\n` +
