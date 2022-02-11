@@ -13,7 +13,10 @@ const CALENDAR_TO_MERGE_INTO = 'shared-calendar-id@gmail.com';
 const SYNC_DAYS_IN_PAST = 7;
 const SYNC_DAYS_IN_FUTURE = 30;
 
-
+// Unique character to use in the title of the event to identify it as a clone.
+// This is used to delete the old events.
+// https://unicode-table.com/en/200B/
+const SEARCH_CHARACTER = '\u200B';
 
 // ----------------------------------------------------------------------------
 // DO NOT TOUCH FROM HERE ON
@@ -27,8 +30,9 @@ function SyncCalendarsIntoOne() {
   startTime.setHours(0, 0, 0, 0);
   startTime.setDate(startTime.getDate() - SYNC_DAYS_IN_PAST);
 
-  const endTime = new Date(startTime.valueOf());
-  endTime.setDate(endTime.getDate() + SYNC_DAYS_IN_FUTURE);
+  const endTime = new Date();
+  endTime.setHours(0, 0, 0, 0);
+  endTime.setDate(endTime.getDate() + SYNC_DAYS_IN_FUTURE + 1);
 
   // Delete old events
   const deleteStartTime = new Date();
@@ -43,11 +47,18 @@ function SyncCalendarsIntoOne() {
 // This is basically a sync w/o finding and updating. Just deleted and recreate.
 function deleteEvents(startTime, endTime) {
   const sharedCalendar = CalendarApp.getCalendarById(CALENDAR_TO_MERGE_INTO);
-  const events = sharedCalendar.getEvents(startTime, endTime);
+
+  // Find events with the search character in the title.
+  // The `.filter` method is used since the getEvents method seems to return all events at the moment. It's a safety check.
+  const events = sharedCalendar
+    .getEvents(startTime, endTime, { search: SEARCH_CHARACTER })
+    .filter((event) => event.getTitle().includes(SEARCH_CHARACTER));
 
   const requestBody = events.map((e, i) => ({
     method: 'DELETE',
-    endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events/${e.getId().replace('@google.com', '')}`,
+    endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events/${e
+      .getId()
+      .replace('@google.com', '')}`,
   }));
 
   if (requestBody && requestBody.length) {
@@ -58,7 +69,7 @@ function deleteEvents(startTime, endTime) {
     });
 
     if (result.length !== requestBody.length) {
-      console.log(result)
+      console.log(result);
     }
 
     console.log(`${result.length} deleted events.`);
@@ -93,7 +104,6 @@ function createEvents(startTime, endTime) {
     }
 
     events.items.forEach((event) => {
-
       // Don't copy "free" events.
       if (event.transparency && event.transparency === 'transparent') {
         return;
@@ -103,7 +113,7 @@ function createEvents(startTime, endTime) {
         method: 'POST',
         endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events`,
         requestBody: {
-          summary: `${calendarName} ${event.summary}`,
+          summary: `${SEARCH_CHARACTER}${calendarName} ${event.summary}`,
           location: event.location,
           description: event.description,
           start: event.start,
@@ -120,7 +130,7 @@ function createEvents(startTime, endTime) {
     });
 
     if (result.length !== requestBody.length) {
-      console.log(result)
+      console.log(result);
     }
 
     console.log(`${result.length} events created.`);
