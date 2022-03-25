@@ -21,10 +21,13 @@ class BatchRequest {
 
     this.accessToken = obj.accessToken || ScriptApp.getOAuthToken();
 
-    if (this.reqs.length > 100) {
+    if (obj.useFetchAll === true || this.reqs.length > 1) {
       return this.enhancedDo();
     } else {
-      return UrlFetchApp.fetch(this.url, this.createRequest(this.reqs));
+      let res = UrlFetchApp.fetch(this.url, this.createRequest(this.reqs));
+
+      res = this.parser(res.getContentText());
+      return res;
     }
   }
 
