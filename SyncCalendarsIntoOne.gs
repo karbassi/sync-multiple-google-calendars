@@ -113,7 +113,7 @@ function syncEvents(startTime, endTime) {
         if (target_event) {
           requestBody_update.push({
             method: 'PATCH',
-            endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events/${source_event.iCalUID}`,
+            endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events/${target_event.id}`,
             requestBody: {
               summary: `${SEARCH_CHARACTER}${source_event.summary} ${calendarName}`,
               location: source_event.location,
