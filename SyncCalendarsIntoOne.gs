@@ -112,7 +112,7 @@ function syncEvents(startTime, endTime) {
         // if target event is found, update it. else create it.
         if (target_event) {
           requestBody_update.push({
-            method: 'PATCH',
+            method: 'PUT',
             endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events/${target_event.id}`,
             requestBody: {
               summary: `${SEARCH_CHARACTER}${source_event.summary} ${calendarName}`,
