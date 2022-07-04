@@ -91,7 +91,7 @@ function syncEvents(startTime, endTime) {
       if (!source_event){
         requestBody_delete.push({
           method: 'DELETE',
-          endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events/${target_event.iCalUID.replace('@google.com', '')}`,
+          endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events/${target_event.id}`,
         });
       }
     });
