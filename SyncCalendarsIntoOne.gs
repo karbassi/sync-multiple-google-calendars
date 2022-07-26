@@ -1,9 +1,17 @@
 // Calendars to merge from.
-// "[X]" is what is placed in front of your calendar event in the shared calendar.
+// Calendar name is a friendly way to identify your calendars.
+//
+// Id is the google calendar id found in the calendar setting
+//
+// Prefix "[X]" is what is placed in front of your calendar event in the shared calendar.
 // Use "" if you want none.
+//
+// Color id for the events. Don't specify a color for the default color.
+// 0=default, 1=blue, 2=green, 3=purple, 4=red, 5=yellow, 6=orange, 
+// 7=turquoise, 8=gray, 9=bold blue, 10=bold green, 11=bold red
 const CALENDARS_TO_MERGE = {
-  '[Personal]': 'calendar-id@gmail.com',
-  '[Work]': 'calendar-id@gmail.com',
+  'Personal': {'id': 'calendar-id@gmail.com', 'prefix':'[Personal]', 'color_id': ''},
+  'Work': {'id': 'calendar-id@gmail.com', 'prefix':'[Work]', 'color_id': '4'},
 };
 
 // The ID of the shared calendar
@@ -81,8 +89,10 @@ function deleteEvents(startTime, endTime) {
 function createEvents(startTime, endTime) {
   let requestBody = [];
 
-  for (let calendarName in CALENDARS_TO_MERGE) {
-    const calendarId = CALENDARS_TO_MERGE[calendarName];
+  for (const [calendarName, calendarOption] of Object.entries(CALENDARS_TO_MERGE)) {
+    const calendarId = calendarOption.id;
+    const calendarPrefix = calendarOption.prefix;
+    const calendarColorId = calendarOption.color_id || '0';
     const calendarToCopy = CalendarApp.getCalendarById(calendarId);
 
     if (!calendarToCopy) {
@@ -113,11 +123,12 @@ function createEvents(startTime, endTime) {
         method: 'POST',
         endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events`,
         requestBody: {
-          summary: `${SEARCH_CHARACTER}${calendarName} ${event.summary}`,
+          summary: `${SEARCH_CHARACTER}${calendarPrefix} ${event.summary}`,
           location: event.location,
           description: event.description,
           start: event.start,
           end: event.end,
+          colorId: calendarColorId
         },
       });
     });
