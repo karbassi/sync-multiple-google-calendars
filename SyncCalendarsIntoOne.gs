@@ -113,7 +113,7 @@ function createEvents(startTime, endTime) {
         method: 'POST',
         endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events`,
         requestBody: {
-          summary: `${SEARCH_CHARACTER}${calendarName} ${event.summary}`,
+          summary: `${SEARCH_CHARACTER}${calendarName} ${event.summary ? event.summary : "busy"}`,
           location: event.location,
           description: event.description,
           start: event.start,
