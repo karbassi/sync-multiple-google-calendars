@@ -111,13 +111,14 @@ function createEvents(startTime, endTime) {
 
       requestBody.push({
         method: 'POST',
-        endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events`,
+        endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events?conferenceDataVersion=1`,
         requestBody: {
           summary: `${SEARCH_CHARACTER}${calendarName} ${event.summary}`,
           location: event.location,
           description: event.description,
           start: event.start,
           end: event.end,
+          conferenceData: event.conferenceData,
         },
       });
     });
