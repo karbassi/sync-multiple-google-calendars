@@ -13,6 +13,9 @@ const CALENDAR_TO_MERGE_INTO = "shared-calendar-id@gmail.com"
 const SYNC_DAYS_IN_PAST = 7
 const SYNC_DAYS_IN_FUTURE = 30
 
+// Default title for events that don't have a title.
+const DEFAULT_EVENT_TITLE = "Busy"
+
 // Unique character to use in the title of the event to identify it as a clone.
 // This is used to delete the old events.
 // https://unicode-table.com/en/200B/
@@ -107,6 +110,11 @@ function createEvents(startTime, endTime) {
       // Don't copy "free" events.
       if (event.transparency && event.transparency === "transparent") {
         return
+      }
+
+      // If event.summary is undefined, empty, or null, set it to default title
+      if (!event.summary || event.summary === "") {
+        event.summary = DEFAULT_EVENT_TITLE
       }
 
       requestBody.push({
