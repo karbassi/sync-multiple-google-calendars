@@ -22,19 +22,21 @@ const SEARCH_CHARACTER = "\u200B"
 // DO NOT TOUCH FROM HERE ON
 // ----------------------------------------------------------------------------
 
+// Base endpoint for the calendar API
 const ENDPOINT_BASE = "https://www.googleapis.com/calendar/v3/calendars"
 
 function SyncCalendarsIntoOne() {
-  // Midnight today
+  // Start time is today at midnight - SYNC_DAYS_IN_PAST
   const startTime = new Date()
   startTime.setHours(0, 0, 0, 0)
   startTime.setDate(startTime.getDate() - SYNC_DAYS_IN_PAST)
 
+  // End time is today at midnight + SYNC_DAYS_IN_FUTURE
   const endTime = new Date()
   endTime.setHours(0, 0, 0, 0)
   endTime.setDate(endTime.getDate() + SYNC_DAYS_IN_FUTURE + 1)
 
-  // Delete old events
+  // Delete any old events that have been already cloned over.
   const deleteStartTime = new Date()
   deleteStartTime.setFullYear(2000, 01, 01)
   deleteStartTime.setHours(0, 0, 0, 0)
@@ -70,7 +72,7 @@ function deleteEvents(startTime, endTime) {
       console.log(result)
     }
 
-    console.log(`${result.length} deleted events.`)
+    console.log(`${result.length} deleted events between ${startTime} and ${endTime}.`)
   } else {
     console.log("No events to delete.")
   }
@@ -132,7 +134,7 @@ function createEvents(startTime, endTime) {
       console.log(result)
     }
 
-    console.log(`${result.length} events created.`)
+    console.log(`${result.length} events created between ${startTime} and ${endTime}.`)
   } else {
     console.log("No events to create.")
   }
