@@ -1,29 +1,8 @@
-// Calendars to merge from.
-// "[X]" is what is placed in front of your calendar event in the shared calendar.
-// Use "" if you want none.
-const CALENDARS_TO_MERGE = {
-  "[Personal]": "calendar-id@gmail.com",
-  "[Work]": "calendar-id@gmail.com",
-}
+// Edit the Settings.gs file to change the settings for this script.
 
-// The ID of the shared calendar
-const CALENDAR_TO_MERGE_INTO = "shared-calendar-id@gmail.com"
-
-// Number of days in the past and future to sync.
-const SYNC_DAYS_IN_PAST = 7
-const SYNC_DAYS_IN_FUTURE = 30
-
-// Default title for events that don't have a title.
-const DEFAULT_EVENT_TITLE = "Busy"
-
-// Unique character to use in the title of the event to identify it as a clone.
-// This is used to delete the old events.
-// https://unicode-table.com/en/200B/
-const SEARCH_CHARACTER = "\u200B"
-
-// ----------------------------------------------------------------------------
-// DO NOT TOUCH FROM HERE ON
-// ----------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// WARNING: Do not edit this script unless you know what you're doing.
+// ---------------------------------------------------------------------------
 
 // Base endpoint for the calendar API
 const ENDPOINT_BASE = "https://www.googleapis.com/calendar/v3/calendars"
@@ -51,6 +30,18 @@ function SyncCalendarsIntoOne() {
 // Delete any old events that have been already cloned over.
 // This is basically a sync w/o finding and updating. Just deleted and recreate.
 function deleteEvents(startTime, endTime) {
+  // If startTime is undefined, set it to epoch.
+  if (!startTime) {
+    startTime = new Date(0)
+  }
+
+  // If endTime is undefined, set it to 1 year from now.
+  if (!endTime) {
+    endTime = new Date()
+    endTime.setFullYear(endTime.getFullYear() + 1)
+  }
+
+  // Get the shared calendar
   const sharedCalendar = CalendarApp.getCalendarById(CALENDAR_TO_MERGE_INTO)
 
   // Find events with the search character in the title.
