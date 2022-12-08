@@ -2,12 +2,12 @@
 // "[X]" is what is placed in front of your calendar event in the shared calendar.
 // Use "" if you want none.
 const CALENDARS_TO_MERGE = {
-  '[Personal]': 'calendar-id@gmail.com',
-  '[Work]': 'calendar-id@gmail.com',
+  "[Personal]": "calendar-id@gmail.com",
+  "[Work]": "calendar-id@gmail.com",
 };
 
 // The ID of the shared calendar
-const CALENDAR_TO_MERGE_INTO = 'shared-calendar-id@gmail.com';
+const CALENDAR_TO_MERGE_INTO = "shared-calendar-id@gmail.com";
 
 // Number of days in the past and future to sync.
 const SYNC_DAYS_IN_PAST = 7;
@@ -16,13 +16,13 @@ const SYNC_DAYS_IN_FUTURE = 30;
 // Unique character to use in the title of the event to identify it as a clone.
 // This is used to delete the old events.
 // https://unicode-table.com/en/200B/
-const SEARCH_CHARACTER = '\u200B';
+const SEARCH_CHARACTER = "\u200B";
 
 // ----------------------------------------------------------------------------
 // DO NOT TOUCH FROM HERE ON
 // ----------------------------------------------------------------------------
 
-const ENDPOINT_BASE = 'https://www.googleapis.com/calendar/v3/calendars';
+const ENDPOINT_BASE = "https://www.googleapis.com/calendar/v3/calendars";
 
 function SyncCalendarsIntoOne() {
   // Midnight today
@@ -55,16 +55,16 @@ function deleteEvents(startTime, endTime) {
     .filter((event) => event.getTitle().includes(SEARCH_CHARACTER));
 
   const requestBody = events.map((e, i) => ({
-    method: 'DELETE',
+    method: "DELETE",
     endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events/${e
       .getId()
-      .replace('@google.com', '')}`,
+      .replace("@google.com", "")}`,
   }));
 
   if (requestBody && requestBody.length) {
     const result = new BatchRequest({
       useFetchAll: true,
-      batchPath: 'batch/calendar/v3',
+      batchPath: "batch/calendar/v3",
       requests: requestBody,
     });
 
@@ -74,7 +74,7 @@ function deleteEvents(startTime, endTime) {
 
     console.log(`${result.length} deleted events.`);
   } else {
-    console.log('No events to delete.');
+    console.log("No events to delete.");
   }
 }
 
@@ -95,7 +95,7 @@ function createEvents(startTime, endTime) {
       timeMin: startTime.toISOString(),
       timeMax: endTime.toISOString(),
       singleEvents: true,
-      orderBy: 'startTime',
+      orderBy: "startTime",
     });
 
     // If nothing find, move to next calendar
@@ -105,12 +105,12 @@ function createEvents(startTime, endTime) {
 
     events.items.forEach((event) => {
       // Don't copy "free" events.
-      if (event.transparency && event.transparency === 'transparent') {
+      if (event.transparency && event.transparency === "transparent") {
         return;
       }
 
       requestBody.push({
-        method: 'POST',
+        method: "POST",
         endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events?conferenceDataVersion=1`,
         requestBody: {
           summary: `${SEARCH_CHARACTER}${calendarName} ${event.summary}`,
@@ -126,7 +126,7 @@ function createEvents(startTime, endTime) {
 
   if (requestBody && requestBody.length) {
     const result = new BatchRequest({
-      batchPath: 'batch/calendar/v3',
+      batchPath: "batch/calendar/v3",
       requests: requestBody,
     });
 
@@ -136,6 +136,6 @@ function createEvents(startTime, endTime) {
 
     console.log(`${result.length} events created.`);
   } else {
-    console.log('No events to create.');
+    console.log("No events to create.");
   }
 }
