@@ -3,6 +3,8 @@
 // Use "" if you want none.
 const CALENDARS_TO_MERGE = {
   "[Personal]": "calendar-id@gmail.com",
+  // Example of additional calendars from "My Calendars"
+  "[Custom]": "calendar-id@group.calendar.google.com",
   "[Work]": "calendar-id@gmail.com",
 }
 
@@ -61,7 +63,10 @@ function deleteEvents(startTime, endTime) {
 
   const requestBody = events.map((e, i) => ({
     method: "DELETE",
-    endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events/${e.getId().replace("@google.com", "")}`,
+    endpoint: `${ENDPOINT_BASE}/${CALENDAR_TO_MERGE_INTO}/events/${e
+      .getId()
+      .replace("@google.com", "")
+      .replace("@group.calendar.google.com", "")}`,
   }))
 
   if (requestBody && requestBody.length) {
