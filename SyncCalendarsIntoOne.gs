@@ -111,6 +111,11 @@ function createEvents(startTime, endTime) {
       if (event.transparency && event.transparency === "transparent") {
         return
       }
+      
+      // Don't copy declined events.
+      if (event.attendees && event.attendees.find((at) => at.self) && event.attendees.find((at) => at.self)['responseStatus'] == 'declined') {
+        return
+      }
 
       // If event.summary is undefined, empty, or null, set it to default title
       if (!event.summary || event.summary === "") {
