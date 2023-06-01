@@ -21,6 +21,9 @@ const DEFAULT_EVENT_TITLE = "Busy"
 // https://unicode-table.com/en/200B/
 const SEARCH_CHARACTER = "\u200B"
 
+// Do not sync declined events. Default: false (do sync)
+const DO_NOT_SYNC_DECLINED = false
+
 // ----------------------------------------------------------------------------
 // DO NOT TOUCH FROM HERE ON
 // ----------------------------------------------------------------------------
@@ -113,7 +116,7 @@ function createEvents(startTime, endTime) {
       }
       
       // Don't copy declined events.
-      if (event.attendees && event.attendees.find((at) => at.self) && event.attendees.find((at) => at.self)['responseStatus'] == 'declined') {
+      if (DO_NOT_SYNC_DECLINED && event.attendees && event.attendees.find((at) => at.self) && event.attendees.find((at) => at.self)['responseStatus'] == 'declined') {
         return
       }
 
