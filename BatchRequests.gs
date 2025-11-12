@@ -1,5 +1,28 @@
 // Based on https://github.com/tanaikech/BatchRequest
+// Handles batch requests to Google Calendar API for efficient bulk operations.
+// Google Calendar API allows up to 100 requests per batch.
 
+/**
+ * BatchRequest class for handling multiple Google Calendar API requests efficiently.
+ * Automatically splits large request arrays into batches of 100 (API limit).
+ * 
+ * @class
+ * @param {Object} obj - Configuration object
+ * @param {Array} obj.requests - Array of request objects with method, endpoint, and optional requestBody
+ * @param {string} [obj.batchPath] - Optional batch API path (default: uses requests[0] API version)
+ * @param {string} [obj.accessToken] - Optional OAuth token (default: uses ScriptApp.getOAuthToken())
+ * @param {boolean} [obj.useFetchAll] - Force use of UrlFetchApp.fetchAll for parallel requests
+ * @returns {Array} Array of response objects from the batch requests
+ * 
+ * @example
+ * const result = new BatchRequest({
+ *   batchPath: "batch/calendar/v3",
+ *   requests: [
+ *     { method: "POST", endpoint: "...", requestBody: {...} },
+ *     { method: "DELETE", endpoint: "..." }
+ *   ]
+ * });
+ */
 class BatchRequest {
   constructor(obj) {
     if (!obj.hasOwnProperty('requests')) {
@@ -31,16 +54,22 @@ class BatchRequest {
     }
   }
 
+  /**
+   * Enhanced batch request handler that splits requests into chunks of 100.
+   * Uses UrlFetchApp.fetchAll when available for parallel processing.
+   * 
+   * @returns {Array} Combined array of all batch response objects
+   */
   enhancedDo() {
+    // Google Calendar API batch limit is 100 requests per batch
     const limit = 100;
     const split = Math.ceil(this.reqs.length / limit);
 
+    // Use fetchAll for parallel batch processing if available
     if (typeof UrlFetchApp.fetchAll === 'function') {
       const reqs = [];
-      var i = 0;
-      var j = 0;
 
-      for (; 0 <= split ? j < split : j > split; i = 0 <= split ? ++j : --j) {
+      for (let i = 0; i < split; i++) {
         const params = this.createRequest(this.reqs.splice(0, limit));
         params.url = this.url;
         reqs.push(params);
@@ -58,10 +87,10 @@ class BatchRequest {
       return res;
     }
 
-    var allResponses = [];
-    var i = 0;
-    var k = 0;
-    for (; 0 <= split ? k < split : k > split; i = 0 <= split ? ++k : --k) {
+    // Fallback: Process batches sequentially
+    const allResponses = [];
+    
+    for (let i = 0; i < split; i++) {
       const params = this.createRequest(this.reqs.splice(0, limit));
 
       const response = UrlFetchApp.fetch(this.url, params);
@@ -78,9 +107,16 @@ class BatchRequest {
     return allResponses;
   }
 
+  /**
+   * Parses batch response content into individual response objects.
+   * Batch responses are separated by boundary markers.
+   * 
+   * @param {string} contentText - Raw batch response text
+   * @returns {Array} Array of parsed response objects
+   */
   parser(contentText) {
     const regex = /{[\S\s]+}/g;
-    var temp = contentText.split('--batch');
+    const temp = contentText.split('--batch');
 
     return temp.slice(1, temp.length - 1).map((e) => {
       if (regex.test(e)) {
@@ -90,11 +126,19 @@ class BatchRequest {
     });
   }
 
+  /**
+   * Creates a properly formatted batch request payload.
+   * Follows the multipart/mixed content format required by Google APIs.
+   * 
+   * @param {Array} requests - Array of request objects to batch
+   * @returns {Object} UrlFetchApp request options object
+   */
   createRequest(requests) {
     const boundary = 'xxxxxxxxxx';
 
-    var contentId = 0;
-    var data = `--${boundary}\r\n`;
+    let contentId = 0;
+    let data = `--${boundary}\r\n`;
+    
     requests.forEach((req) => {
       data +=
         `Content-Type: application/http\r\n` +
@@ -114,8 +158,6 @@ class BatchRequest {
       }
 
       data += `--${boundary}\r\n`;
-
-      return data;
     });
 
     return {
